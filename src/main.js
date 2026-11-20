@@ -30,6 +30,7 @@ class OldIsGoldPlayerApp {
     this.activePanel = null; // null | 'lyrics' | 'queue'
     this.searchQuery = '';
     this.activeFilter = 'all';
+    this.currentSearchSeq = 0;
 
     // Queue
     this.queue = [...this.tracks];
@@ -510,6 +511,68 @@ class OldIsGoldPlayerApp {
     });
   }
 
+  // Extract YouTube ID from URL or raw ID
+  extractYouTubeId(input) {
+    if (!input) return null;
+    const trimmed = input.trim();
+    const match = trimmed.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (match) return match[1];
+    if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+      return trimmed;
+    }
+    return null;
+  }
+
+  // Play direct YouTube link or ID
+  async playDirectYouTube(rawInput) {
+    const videoId = this.extractYouTubeId(rawInput);
+    if (!videoId) {
+      this.showToast("Please enter a valid YouTube link or 11-char Video ID", "info");
+      return;
+    }
+
+    let title = `YouTube Track (${videoId})`;
+    let artist = "YouTube Stream";
+    let cover = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
+    // Try to get title & author via public noembed API (supports CORS)
+    try {
+      const res = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.title) title = data.title;
+        if (data.author_name) artist = data.author_name;
+      }
+    } catch (e) {
+      console.log('Noembed fetch error:', e);
+    }
+
+    const newTrack = {
+      id: `yt-${videoId}`,
+      video_id: videoId,
+      title: title,
+      artist: artist,
+      album: title,
+      duration: 210,
+      durationFormatted: "3:30",
+      duration_formatted: "3:30",
+      cover: cover,
+      genre: "Golden Era & Hits",
+      color: "#f59e0b",
+      audio: `https://www.youtube.com/watch?v=${videoId}`
+    };
+
+    if (!this.tracks.find(t => t.id === newTrack.id)) {
+      this.tracks.unshift(newTrack);
+    }
+
+    this.playTrack(newTrack, this.tracks);
+    this.showToast(`Playing "${title}" ✨`, "success");
+    if (this.activeView === 'search') {
+      this.renderSearchView(document.getElementById('viewContainer'), title);
+    }
+  }
+
   // SEARCH VIEW
   renderSearchView(container, query = '') {
     const trimmed = query.trim().toLowerCase();
@@ -517,7 +580,10 @@ class OldIsGoldPlayerApp {
     if (!trimmed) {
       container.innerHTML = `
         <div class="content-section">
-          <h2 class="section-title" style="margin-bottom: 20px;">Browse Vintage & Golden Genres</h2>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <h2 class="section-title">Browse Vintage & Golden Genres</h2>
+            <span style="font-size: 13px; color: var(--spotify-subtext);">Search any song, artist, or YouTube link</span>
+          </div>
           <div class="genre-cards-grid">
             ${this.genres.map(genre => `
               <div class="genre-card" style="background-color: ${genre.color};" data-genre-id="${genre.id}">
@@ -544,6 +610,20 @@ class OldIsGoldPlayerApp {
       return;
     }
 
+    // Direct YouTube link or ID pasted into the main search box
+    const directVideoId = this.extractYouTubeId(query);
+    if (directVideoId) {
+      container.innerHTML = `
+        <div class="content-section" style="padding: 40px 20px; text-align: center;">
+          <div class="golden-search-loader" style="margin: 0 auto 16px; width: 40px; height: 40px; border: 3px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; animation: spinVinyl 1s linear infinite;"></div>
+          <h2 style="font-size: 22px; margin-bottom: 8px;">Loading YouTube track...</h2>
+          <p style="color: var(--spotify-subtext);">Fetching details for ID: ${directVideoId}</p>
+        </div>
+      `;
+      this.playDirectYouTube(query);
+      return;
+    }
+
     let matchingTracks = this.tracks.filter(t => 
       t.title.toLowerCase().includes(trimmed) || 
       t.artist.toLowerCase().includes(trimmed) ||
@@ -551,25 +631,21 @@ class OldIsGoldPlayerApp {
       t.genre.toLowerCase().includes(trimmed)
     );
 
-    const renderResults = (tracksList) => {
-      if (tracksList.length === 0) {
-        container.innerHTML = `
-          <div class="content-section" style="text-align: center; padding: 60px 20px;">
-            <h2 style="font-size: 24px; margin-bottom: 12px;">Searching YouTube Music for "${query}"...</h2>
-            <p style="color: var(--spotify-subtext);">Connecting to classic music database...</p>
-          </div>
-        `;
-        return;
-      }
-
+    const renderResults = (tracksList, isLiveLoading = false) => {
       const topResult = tracksList[0];
 
       container.innerHTML = `
         <div class="content-section">
+          ${isLiveLoading ? `
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 16px; background: rgba(245,158,11,0.1); border-radius: 8px; border: 1px solid rgba(245,158,11,0.2);">
+              <div style="width: 16px; height: 16px; border: 2px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; animation: spinVinyl 1s linear infinite;"></div>
+              <span style="font-size: 13px; color: #fbbf24; font-weight: 600;">Searching YouTube Music for more new results...</span>
+            </div>
+          ` : ''}
           <div class="search-results-top">
             <!-- Top Result -->
             <div>
-              <h2 class="section-title" style="margin-bottom: 16px;">Top Classic Result</h2>
+              <h2 class="section-title" style="margin-bottom: 16px;">Top Result</h2>
               <div class="top-result-card" data-track-id="${topResult.id}">
                 <img src="${topResult.cover}" alt="${topResult.title}" />
                 <h3>${topResult.title}</h3>
@@ -605,7 +681,7 @@ class OldIsGoldPlayerApp {
             </div>
           </div>
 
-          <h2 class="section-title" style="margin-bottom: 16px;">All Matching Classics (${tracksList.length})</h2>
+          <h2 class="section-title" style="margin-bottom: 16px;">All Matching Results (${tracksList.length})</h2>
           <div class="cards-grid">
             ${tracksList.map(track => `
               <div class="music-card" data-track-id="${track.id}">
@@ -634,31 +710,146 @@ class OldIsGoldPlayerApp {
       });
     };
 
-    renderResults(matchingTracks);
+    const renderNoResults = () => {
+      container.innerHTML = `
+        <div class="content-section" style="text-align: center; padding: 50px 20px; max-width: 620px; margin: 0 auto;">
+          <div style="font-size: 42px; margin-bottom: 14px;">📻</div>
+          <h2 style="font-size: 22px; margin-bottom: 8px; color: #fff;">No songs found for "${query}"</h2>
+          <p style="color: var(--spotify-subtext); margin-bottom: 24px; font-size: 14px; line-height: 1.5;">
+            Check the spelling, search for another artist/track, or paste any YouTube URL / Video ID below to stream directly.
+          </p>
 
-    // Live search fallback via ytmusicapi backend
-    if (matchingTracks.length < 5) {
-      fetch(`http://localhost:5000/api/search?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.results && data.results.length > 0) {
-            data.results.forEach(newTrack => {
-              if (!this.tracks.find(t => t.id === newTrack.id)) {
-                this.tracks.push(newTrack);
-              }
-            });
-            const updatedMatching = this.tracks.filter(t => 
-              t.title.toLowerCase().includes(trimmed) || 
-              t.artist.toLowerCase().includes(trimmed) ||
-              t.album.toLowerCase().includes(trimmed)
-            );
-            renderResults(updatedMatching);
-          }
-        })
-        .catch(err => {
-          console.log('Live backend search offline or error:', err);
+          <div class="direct-yt-card" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(245,158,11,0.3); border-radius: 12px; padding: 20px; text-align: left;">
+            <div style="font-size: 14px; font-weight: 700; color: #f59e0b; margin-bottom: 6px;">⚡ Stream Any YouTube Track Directly</div>
+            <p style="font-size: 12px; color: var(--spotify-subtext); margin-bottom: 12px;">Paste any YouTube video link or 11-char ID to play with retro vinyl controls:</p>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="directYtInput" placeholder="e.g. https://www.youtube.com/watch?v=... or Video ID" style="flex: 1; padding: 10px 14px; border-radius: 8px; border: 1px solid #3e3e3e; background: #121212; color: #fff; font-size: 13px; outline: none;" />
+              <button id="directYtBtn" class="golden-play-btn" style="padding: 10px 20px; border-radius: 8px; background: #f59e0b; color: #000; font-weight: 700; border: none; cursor: pointer; white-space: nowrap;">Play</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const directInput = container.querySelector('#directYtInput');
+      const directBtn = container.querySelector('#directYtBtn');
+      if (directBtn && directInput) {
+        const handleDirectPlay = () => {
+          const val = directInput.value.trim();
+          if (!val) return;
+          this.playDirectYouTube(val);
+        };
+        directBtn.addEventListener('click', handleDirectPlay);
+        directInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') handleDirectPlay();
         });
+      }
+    };
+
+    // If local matches exist, show them right away
+    if (matchingTracks.length > 0) {
+      renderResults(matchingTracks, true);
+    } else {
+      // Show loading indicator while online search connects
+      container.innerHTML = `
+        <div class="content-section" style="text-align: center; padding: 60px 20px;">
+          <div class="golden-search-loader" style="margin: 0 auto 16px; width: 44px; height: 44px; border: 3px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; animation: spinVinyl 1s linear infinite;"></div>
+          <h2 style="font-size: 24px; margin-bottom: 8px;">Searching YouTube Music for "${query}"...</h2>
+          <p style="color: var(--spotify-subtext);">Connecting to online music database...</p>
+        </div>
+      `;
     }
+
+    // Sequence ID to avoid race conditions with fast typing
+    const searchSeq = ++this.currentSearchSeq;
+
+    // Use relative /api/search for deployed apps (Vercel serverless) and local dev
+    const apiBase = (window.location.hostname === 'localhost' && window.location.port === '5000')
+      ? 'http://localhost:5000'
+      : '';
+
+    fetch(`${apiBase}/api/search?q=${encodeURIComponent(query)}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (this.currentSearchSeq !== searchSeq) return;
+
+        if (data && data.results && data.results.length > 0) {
+          data.results.forEach(newTrack => {
+            if (!this.tracks.find(t => t.id === newTrack.id || (newTrack.video_id && t.video_id === newTrack.video_id))) {
+              this.tracks.push(newTrack);
+            }
+          });
+          const updatedMatching = this.tracks.filter(t => 
+            t.title.toLowerCase().includes(trimmed) || 
+            t.artist.toLowerCase().includes(trimmed) ||
+            t.album.toLowerCase().includes(trimmed)
+          );
+          if (updatedMatching.length > 0) {
+            renderResults(updatedMatching, false);
+          } else {
+            renderNoResults();
+          }
+        } else {
+          if (matchingTracks.length > 0) {
+            renderResults(matchingTracks, false);
+          } else {
+            renderNoResults();
+          }
+        }
+      })
+      .catch(err => {
+        console.warn('Live backend search offline or error:', err);
+        if (this.currentSearchSeq !== searchSeq) return;
+
+        if (matchingTracks.length > 0) {
+          renderResults(matchingTracks, false);
+        } else {
+          // Client-side fallback via iTunes API
+          fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=10`)
+            .then(res => res.json())
+            .then(itunesData => {
+              if (this.currentSearchSeq !== searchSeq) return;
+              if (itunesData && itunesData.results && itunesData.results.length > 0) {
+                itunesData.results.forEach(it => {
+                  const id = `itunes-${it.trackId}`;
+                  if (!this.tracks.find(t => t.id === id)) {
+                    const durSec = Math.floor((it.trackTimeMillis || 210000) / 1000);
+                    const m = Math.floor(durSec / 60);
+                    const s = durSec % 60;
+                    this.tracks.push({
+                      id: id,
+                      video_id: 'd0JpdfOLXI0', // fallback video id
+                      title: it.trackName,
+                      artist: it.artistName,
+                      album: it.collectionName || it.trackName,
+                      duration: durSec,
+                      durationFormatted: `${m}:${s < 10 ? '0' : ''}${s}`,
+                      cover: (it.artworkUrl100 || '').replace('100x100bb', '300x300bb'),
+                      genre: it.primaryGenreName || 'Classics',
+                      color: '#f59e0b'
+                    });
+                  }
+                });
+                const updated = this.tracks.filter(t =>
+                  t.title.toLowerCase().includes(trimmed) ||
+                  t.artist.toLowerCase().includes(trimmed)
+                );
+                if (updated.length > 0) {
+                  renderResults(updated, false);
+                } else {
+                  renderNoResults();
+                }
+              } else {
+                renderNoResults();
+              }
+            })
+            .catch(() => {
+              if (this.currentSearchSeq === searchSeq) renderNoResults();
+            });
+        }
+      });
   }
 
   // PLAYLIST VIEW
@@ -971,7 +1162,8 @@ class OldIsGoldPlayerApp {
     renderLines(this.currentTrack.lyrics);
 
     if (this.currentTrack.video_id) {
-      fetch(`http://localhost:5000/api/lyrics?videoId=${this.currentTrack.video_id}`)
+      const apiBase = (window.location.hostname === 'localhost' && window.location.port === '5000') ? 'http://localhost:5000' : '';
+      fetch(`${apiBase}/api/lyrics?videoId=${this.currentTrack.video_id}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.lyrics && data.lyrics.length > 0 && !data.lyrics[0].includes("No synced lyrics")) {
@@ -1089,11 +1281,15 @@ class OldIsGoldPlayerApp {
     const searchInput = document.getElementById('searchInput');
     const clearSearchBtn = document.getElementById('clearSearchBtn');
 
+    let searchDebounceTimer = null;
     searchInput.addEventListener('input', (e) => {
       this.searchQuery = e.target.value;
       clearSearchBtn.style.display = this.searchQuery ? 'block' : 'none';
       if (this.activeView === 'search') {
-        this.renderSearchView(document.getElementById('viewContainer'), this.searchQuery);
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          this.renderSearchView(document.getElementById('viewContainer'), this.searchQuery);
+        }, 250);
       }
     });
 
