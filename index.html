@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Old is Gold - Evergreen Classic Music Player</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'%3E%3Ccircle cx='12' cy='12' r='10' stroke='%23d97706' stroke-width='1.5' fill='%23181818'/%3E%3Ccircle cx='12' cy='12' r='6' stroke='%23f59e0b' stroke-width='1'/%3E%3Ccircle cx='12' cy='12' r='2' fill='%23f59e0b'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body class="spotify-app">
+  <div class="app-layout">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Old is Gold Brand Logo -->
+      <div class="brand-logo" id="logoBtn">
+        <div class="golden-vinyl-disc" title="Old is Gold">
+          <div class="disc-groove"></div>
+          <div class="disc-center"></div>
+        </div>
+        <div class="brand-text-wrapper">
+          <span class="brand-text golden-text">Old is Gold</span>
+          <span class="brand-subtitle">CLASSICS</span>
+        </div>
+      </div>
+
+      <!-- Main Navigation -->
+      <nav class="nav-section">
+        <ul class="nav-list">
+          <li class="nav-item active" data-view="home" id="navHome">
+            <button class="nav-btn">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33A2 2 0 0 1 22 7.577V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-5h-3v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/>
+              </svg>
+              <span>Home</span>
+            </button>
+          </li>
+          <li class="nav-item" data-view="search" id="navSearch">
+            <button class="nav-btn">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.279-9.407-9.279zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/>
+              </svg>
+              <span>Search Classics</span>
+            </button>
+          </li>
+          <li class="nav-item" data-view="library" id="navLibrary">
+            <button class="nav-btn">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1.5-.866L15.5 2.134zM16 4.732l4 2.31V20h-4V4.732zM8.5 2.134A1 1 0 0 0 7 3v18a1 1 0 0 0 1.5.866l5-2.887A1 1 0 0 0 14 18.113V4.732a1 1 0 0 0-.5-.866l-5-1.732z"/>
+              </svg>
+              <span>Your Collection</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Action items -->
+      <div class="nav-actions">
+        <button class="action-btn" id="createPlaylistBtn">
+          <span class="icon-box plus-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 4a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2h-6v6a1 1 0 1 1-2 0v-6H5a1 1 0 1 1 0-2h6V5a1 1 0 0 1 1-1z"/>
+            </svg>
+          </span>
+          <span>Create Playlist</span>
+        </button>
+        <button class="action-btn" id="likedSongsNavBtn">
+          <span class="icon-box golden-heart-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </span>
+          <span>Golden Favorites</span>
+          <span class="badge" id="likedCountBadge">0</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Playlist Sub-list -->
+      <div class="playlist-scroll-list" id="sidebarPlaylistList">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Shortcut helper badge -->
+      <div class="sidebar-footer">
+        <button class="shortcuts-helper-btn" id="shortcutsBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>Shortcuts (?)</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN APP CONTENT AREA -->
+    <main class="main-content" id="mainContent">
+      
+      <!-- Top Sticky Header -->
+      <header class="top-nav-bar" id="topNavBar">
+        <div class="nav-controls">
+          <button class="circle-btn" id="navBackBtn" title="Go back">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+            </svg>
+          </button>
+          <button class="circle-btn" id="navForwardBtn" title="Go forward">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+            </svg>
+          </button>
+          
+          <!-- Search Input Box -->
+          <div class="search-input-wrapper" id="searchInputWrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.279-9.407-9.279zm-7.407 9.279c0-4.006 3.302-7.279 7.407-7.279s7.407 3.273 7.407 7.279-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.279z"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search Kishore Kumar, Lata, Queen, Beatles..." autocomplete="off" />
+            <button class="clear-search-btn" id="clearSearchBtn" style="display: none;">✕</button>
+          </div>
+        </div>
+
+        <!-- Filter Chips in Header -->
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-filter="all">All Classics</button>
+          <button class="chip" data-filter="bollywood">Retro Bollywood</button>
+          <button class="chip" data-filter="rock">Classic Rock</button>
+          <button class="chip" data-filter="ghazal">Ghazals</button>
+        </div>
+
+        <!-- Header Actions: Badge & User Profile -->
+        <div class="header-user-actions">
+          <div class="golden-era-tag">✨ Golden Era</div>
+          <div class="user-profile-badge" id="userProfileBtn" title="Profile">
+            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&auto=format&fit=crop&q=80" alt="Avatar" />
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Inner View Container -->
+      <div class="view-scroll-container" id="viewContainer">
+        <!-- Rendered dynamically: Home / Search / Playlist / Liked -->
+      </div>
+    </main>
+
+    <!-- RIGHT SIDE PANEL (Lyrics / Queue / Track Info) -->
+    <aside class="right-panel" id="rightPanel" style="display: none;">
+      <div class="panel-header">
+        <h3 id="rightPanelTitle">Now Playing</h3>
+        <button class="close-panel-btn" id="closePanelBtn">✕</button>
+      </div>
+      <div class="panel-content" id="rightPanelContent">
+        <!-- Dynamic: Lyrics / Queue / Info -->
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- PERSISTENT BOTTOM PLAYER -->
+  <footer class="player-bar" id="playerBar">
+    <!-- LEFT: Current Track Info -->
+    <div class="player-left">
+      <div class="cover-wrapper">
+        <img id="playerCover" class="player-cover" src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150&auto=format&fit=crop&q=80" alt="Cover" />
+        <div class="vinyl-disc-spin" id="playerDiscSpin"></div>
+      </div>
+      <div class="track-details">
+        <span class="track-title" id="playerTitle">Loading Classic Song...</span>
+        <span class="track-artist" id="playerArtist">Old is Gold</span>
+      </div>
+      <button class="heart-btn" id="playerHeartBtn" title="Save to Favorites">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </button>
+      <div class="audio-equalizer" id="audioEqualizer" title="Real music playing">
+        <span class="bar golden-bar"></span>
+        <span class="bar golden-bar"></span>
+        <span class="bar golden-bar"></span>
+        <span class="bar golden-bar"></span>
+      </div>
+    </div>
+
+    <!-- CENTER: Playback Controls & Progress Bar -->
+    <div class="player-center">
+      <div class="control-buttons">
+        <button class="control-btn" id="shuffleBtn" title="Enable shuffle (S)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+          </svg>
+        </button>
+        <button class="control-btn" id="prevBtn" title="Previous (P)">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+          </svg>
+        </button>
+        <button class="play-pause-btn golden-play-btn" id="playPauseBtn" title="Play / Pause (Space)">
+          <svg id="playIcon" viewBox="0 0 24 24" width="22" height="22" fill="#000000">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <svg id="pauseIcon" style="display: none;" viewBox="0 0 24 24" width="22" height="22" fill="#000000">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        </button>
+        <button class="control-btn" id="nextBtn" title="Next (N)">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+          </svg>
+        </button>
+        <button class="control-btn" id="repeatBtn" title="Enable repeat (R)">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Timeline & Seekbar -->
+      <div class="playback-timeline">
+        <span class="time-label" id="currentTimeLabel">0:00</span>
+        <div class="progress-bar-container" id="progressBarContainer">
+          <div class="progress-bar-background">
+            <div class="progress-bar-fill golden-progress-fill" id="progressBarFill"></div>
+            <div class="progress-bar-handle" id="progressBarHandle"></div>
+          </div>
+        </div>
+        <span class="time-label" id="durationLabel">3:45</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Extra Controls (Lyrics, Queue, Volume, Fullscreen) -->
+    <div class="player-right">
+      <button class="right-icon-btn" id="lyricsBtn" title="Lyrics">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3"></circle>
+          <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+      </button>
+      <button class="right-icon-btn" id="queueBtn" title="Queue">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h8v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+        </svg>
+      </button>
+      
+      <!-- Volume Slider -->
+      <div class="volume-container">
+        <button class="volume-btn" id="volumeBtn" title="Mute/Unmute (M)">
+          <svg id="volumeHighIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+          </svg>
+          <svg id="volumeMutedIcon" style="display: none;" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+          </svg>
+        </button>
+        <div class="volume-slider-container" id="volumeSliderContainer">
+          <div class="volume-slider-background">
+            <div class="volume-slider-fill golden-progress-fill" id="volumeSliderFill"></div>
+            <div class="volume-slider-handle" id="volumeSliderHandle"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="right-icon-btn" id="fullscreenBtn" title="Full Screen">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+      </button>
+    </div>
+  </footer>
+
+  <!-- REAL AUDIO YOUTUBE PLAYER CONTAINER (Hidden background player) -->
+  <div id="ytPlayerContainer" style="position: fixed; bottom: 95px; right: 10px; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1;"></div>
+
+  <!-- KEYBOARD SHORTCUTS MODAL -->
+  <div class="modal-backdrop" id="shortcutsModal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Old is Gold - Keyboard Shortcuts</h2>
+        <button class="modal-close" id="closeShortcutsModal">✕</button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-row"><kbd>Space</kbd><span>Play / Pause</span></div>
+        <div class="shortcut-row"><kbd>→</kbd><span>Seek forward 5s</span></div>
+        <div class="shortcut-row"><kbd>←</kbd><span>Seek backward 5s</span></div>
+        <div class="shortcut-row"><kbd>↑</kbd><span>Volume up 10%</span></div>
+        <div class="shortcut-row"><kbd>↓</kbd><span>Volume down 10%</span></div>
+        <div class="shortcut-row"><kbd>M</kbd><span>Mute / Unmute</span></div>
+        <div class="shortcut-row"><kbd>L</kbd><span>Like / Save to Favorites</span></div>
+        <div class="shortcut-row"><kbd>N</kbd><span>Next track</span></div>
+        <div class="shortcut-row"><kbd>P</kbd><span>Previous track</span></div>
+        <div class="shortcut-row"><kbd>S</kbd><span>Toggle Shuffle</span></div>
+        <div class="shortcut-row"><kbd>R</kbd><span>Toggle Repeat</span></div>
+        <div class="shortcut-row"><kbd>?</kbd><span>Open this dialog</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Official YouTube IFrame API for Real Music Playback -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
