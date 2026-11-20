@@ -31,6 +31,7 @@ class OldIsGoldPlayerApp {
     this.searchQuery = '';
     this.activeFilter = 'all';
     this.currentSearchSeq = 0;
+    this.searchCache = new Map();
 
     // Queue
     this.queue = [...this.tracks];
@@ -745,6 +746,15 @@ class OldIsGoldPlayerApp {
       }
     };
 
+    // Instant cache lookup for 0ms ASAP response
+    if (this.searchCache && this.searchCache.has(trimmed)) {
+      const cached = this.searchCache.get(trimmed);
+      if (cached && cached.length > 0) {
+        renderResults(cached, false);
+        return;
+      }
+    }
+
     // If local matches exist, show them right away
     if (matchingTracks.length > 0) {
       renderResults(matchingTracks, true);
@@ -786,11 +796,9 @@ class OldIsGoldPlayerApp {
             t.artist.toLowerCase().includes(trimmed) ||
             t.album.toLowerCase().includes(trimmed)
           );
-          if (updatedMatching.length > 0) {
-            renderResults(updatedMatching, false);
-          } else {
-            renderNoResults();
-          }
+          const finalResults = updatedMatching.length > 0 ? updatedMatching : data.results;
+          if (this.searchCache) this.searchCache.set(trimmed, finalResults);
+          renderResults(finalResults, false);
         } else {
           if (matchingTracks.length > 0) {
             renderResults(matchingTracks, false);
@@ -1282,6 +1290,13 @@ class OldIsGoldPlayerApp {
     const clearSearchBtn = document.getElementById('clearSearchBtn');
 
     let searchDebounceTimer = null;
+    const triggerSearchImmediately = () => {
+      clearTimeout(searchDebounceTimer);
+      if (this.activeView === 'search') {
+        this.renderSearchView(document.getElementById('viewContainer'), this.searchQuery);
+      }
+    };
+
     searchInput.addEventListener('input', (e) => {
       this.searchQuery = e.target.value;
       clearSearchBtn.style.display = this.searchQuery ? 'block' : 'none';
@@ -1289,7 +1304,14 @@ class OldIsGoldPlayerApp {
         clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(() => {
           this.renderSearchView(document.getElementById('viewContainer'), this.searchQuery);
-        }, 250);
+        }, 150);
+      }
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        triggerSearchImmediately();
       }
     });
 
